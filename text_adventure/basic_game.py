@@ -17,6 +17,16 @@ class Room:
         self.description = ""
         self.exits = {}
 
+    def __repr__(self):
+        '''
+        String representation of the class 
+        '''
+        desc = f"Room(name='{self.name}'"
+        desc += f", description='{self.description[:20]}'"
+        desc += f', n_exits={len(self.exits)})'
+        return desc
+                
+
     def add_exit(self, room, direction):
         '''
         Add an exit to the room
@@ -45,38 +55,50 @@ class Room:
         else:
             raise ValueError()
 
-
-class Player:
-    def __init__(self, name):
-        self.name = name
-
-        
-class Game:
-    def __init__(self, player, rooms, start_index=0):
+       
+class TextWorld:
+    '''
+    A TextWorld encapsulate the logic and Room objects that comprise the game.
+    '''
+    def __init__(self, name, rooms, start_index=0):
         '''
+        Constructor method for World
+
         Parameters:
         ----------
-        player: Player
-            The player of the game is an instance of the player class.
-
         rooms: list
-            A list of rooms in the game.
+            A list of rooms in the world.
 
         start_index: int, optional (default=0)
             The index of the room where the player begins their adventure.
 
         '''
-        self.player = player
+        self.name = name
         self.rooms = rooms
         self.current_room = self.rooms[start_index]
         self.legal_exits = ['n', 'e', 's', 'w']
         self.legal_commands =['look']
-        self.moves = 0
+        self.n_actions = 0
+        
+        #true while the game is active.
+        self.active = True
 
-
-    def action(self, command):
+    
+    def __repr__(self):
         '''
-        Take an action in the game
+        String representation of the class 
+        '''
+        desc = f"TextWorld(name='{self.name}', "
+        desc += f'n_rooms={len(self.rooms)}, '
+        desc += f'legal_exits={self.legal_exits}, '
+        desc += f'legal_commands={self.legal_commands},\n'
+        desc += f'\tcurrent_room={self.current_room})'
+        return desc 
+
+
+    def take_action(self, command):
+        '''
+        Take an action in the TextWorld
 
         Parameters:
         -----------
@@ -87,6 +109,10 @@ class Game:
         --------
         str: a string message to display to the player.
         '''
+
+        #no. of actions taken
+        self.n_actions += 1
+
         #handle action to move room
         if command in self.legal_exits:
             msg = ''
@@ -109,6 +135,8 @@ class Game:
         else:
             #handle command error
             return f"I don't know how to {command}"
+
+
         
 
         
