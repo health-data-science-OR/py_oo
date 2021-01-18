@@ -12,6 +12,11 @@ Game: The main game class.  A player can take actions within a game
 '''
 
 class Room:
+    '''
+    Encapsulates a location/room within a TextWorld.
+
+    A `Room` has a number of exits to other `Room` objects
+    '''
     def __init__(self, name):
         self.name = name
         self.description = ""
@@ -60,7 +65,7 @@ class TextWorld:
     '''
     A TextWorld encapsulate the logic and Room objects that comprise the game.
     '''
-    def __init__(self, name, rooms, start_index=0):
+    def __init__(self, name, rooms, start_index=0, max_moves=5):
         '''
         Constructor method for World
 
@@ -82,6 +87,7 @@ class TextWorld:
         
         #true while the game is active.
         self.active = True
+        self.max_moves = max_moves
 
     
     def __repr__(self):
@@ -112,6 +118,8 @@ class TextWorld:
 
         #no. of actions taken
         self.n_actions += 1
+        if self.n_actions == self.max_moves:
+            self.active = False
 
         #handle action to move room
         if command in self.legal_exits:
@@ -136,8 +144,6 @@ class TextWorld:
             #handle command error
             return f"I don't know how to {command}"
 
-
-        
 
         
 if __name__ == '__main__':
