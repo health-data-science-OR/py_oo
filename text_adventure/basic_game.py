@@ -60,6 +60,12 @@ class Room:
         else:
             raise ValueError()
 
+    def describe(self):
+        '''
+        Describe the room to a player
+        '''
+        return self.description
+
        
 class TextWorld:
     '''
@@ -82,7 +88,7 @@ class TextWorld:
         self.rooms = rooms
         self.current_room = self.rooms[start_index]
         self.legal_exits = ['n', 'e', 's', 'w']
-        self.legal_commands =['look']
+        self.legal_commands =['look', 'quit']
         self.n_actions = 0
         
         #true while the game is active.
@@ -96,9 +102,10 @@ class TextWorld:
         '''
         desc = f"TextWorld(name='{self.name}', "
         desc += f'n_rooms={len(self.rooms)}, '
-        desc += f'legal_exits={self.legal_exits}, '
-        desc += f'legal_commands={self.legal_commands},\n'
-        desc += f'\tcurrent_room={self.current_room})'
+        desc += f'legal_exits={self.legal_exits},\n'
+        desc += f'\tlegal_commands={self.legal_commands},\n'
+        desc += f'\tcurrent_room={self.current_room},\n'
+        desc += f'\tmax_moves={self.max_moves})'
         return desc 
 
 
@@ -138,11 +145,72 @@ class TextWorld:
         if parsed_command[0] in self.legal_commands:
             #handle command
             if parsed_command[0] == 'look':
-                return self.current_room.description
+                return self.current_room.describe()
+            elif parsed_command[0] == 'quit':
+                self.active = False
+                return 'You have quit the game.'
         
         else:
             #handle command error
             return f"I don't know how to {command}"
+
+
+def get_hospital_textworld():
+    '''
+    Return a `TextWorld` object that represents a hospital adventure.
+    
+    The game consits of a reception, corridor, ward, and operating theatre.
+    Players can move n, s, e, w and 'look' and 'quit' the game.
+    The game ends after 5 moves.
+    '''
+    # Let's instantiate some Room objects to represent our network of rooms
+
+    #start fo the game = reception
+    reception = Room(name="reception")
+    reception.description = """You are stood in the busy hospital reception.
+    To the south, east and west are wards with COVID19 restricted areas. 
+    To the north is a corridor."""
+
+    corridor = Room(name='corridor')
+    corridor.description = """A long corridor branching in three directions. 
+    To the north is signposted 'WARD'.  
+    The south is  signposted 'RECEPTION'.
+    The east is signposted 'THEATRE'"""
+
+    ward = Room(name="ward")
+    ward.description = """You are on the general medical ward. There are 10 beds
+    and all seem to be full today.  There is a smell of disinfectant. 
+    The exit is to the south"""
+
+    theatre = Room(name="theatre")
+    theatre.description = """You are in the operating theatre.  Its empty today as
+    all of the elective operations have been cancelled.
+    An exit is to the west."""
+
+    #add the exits by calling the add_exit() method  
+    reception.add_exit(corridor, 'n')
+    corridor.add_exit(reception, 's')
+    corridor.add_exit(ward, 'n')
+    corridor.add_exit(theatre, 'e')
+    ward.add_exit(corridor, 's')
+    theatre.add_exit(corridor, 'w')
+
+    rooms_collection = [reception, corridor, ward, theatre]
+    
+    adventure = TextWorld(name='text hospital world', rooms=rooms_collection, 
+                      start_index=0)
+
+    #set the legal commands for the game
+    #directions a player can move and command they can issue.
+    adventure.legal_commands = ['look', 'quit']
+    adventure.legal_exits = ['n', 'e', 's', 'w']
+
+    adventure.opening = """Welcome to your local hospital! Unfortunatly due to the 
+    pandemic most of the hospital is under restrictions today. But there are a few
+    areas where it is safe to visit.
+    """
+
+    return adventure
 
 
         
